@@ -47,10 +47,12 @@ def on_message(client, userdata, msg):
     elif msg.topic == 'sensores/backup/co2':
         backup_co2 = valor
 
+# Creamos una instancia MQTT y asignamos las funciones on_connect y on_message para que se ejecuten cuando la Raspberry se connecte y cuando reciba un mensaje
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 
+# Se conecta la raspberry como cliente dentro de MQTT. Localhost significa que se connecta la propia raspberry pi en la que se ejecuta el programa por el puerto 1883
 client.connect("localhost", 1883, 60)
 client.loop_start()
 
@@ -59,6 +61,7 @@ while True:
     print(humedad)
     print(co2)
 
+    # Almacenar los datos recibidos en la base de datos "database_global"
     servicios_sql.guardar_datos_database(temperatura, humedad, co2, "database_global")
 
     time.sleep(5)
