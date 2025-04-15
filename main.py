@@ -1,5 +1,6 @@
 import time
 import servicios_sql
+import servicios_azure
 import datetime
 import board
 import busio
@@ -8,12 +9,9 @@ from dht20_sensor.sensor import DHT20Sensor
 import paho.mqtt.client as mqtt
 import mysql.connector
 
+
 BROKER_IP = "100.113.130.118"
 
-# Inicialización variables
-inicio_1 = datetime.datetime.now()
-inicio_5 = datetime.datetime.now()
-inicio_10 = datetime.datetime.now()
 
 # Función para obtener los datos de los sensores
 def get_sensors_data():
@@ -70,9 +68,13 @@ def on_connect(client, userdata, flags, rc):
     else:
         print(f"⚠️ Error de conexión con el broker {rc}")
 
+
+
+
+
 # Inicialización cliente MQTT
 client = mqtt.Client()
-client.on_connect = on_connect
+#client.on_connect = on_connect
 #client.connect(BROKER_IP, 1883, 60)
 
 # Inicialización I2C
@@ -85,6 +87,9 @@ sensor_SCD30 = adafruit_scd30.SCD30(i2c)
 # Inicialización de las bases de datos MySQL
 servicios_sql.crear_database("database_sensores")
 servicios_sql.crear_database("database_backup")
+
+# Inicialización de las bases de datos en la nube (Azure)
+servicios_azure.crear_tabla_azure()
 
 
 while True:
@@ -101,8 +106,8 @@ while True:
         print(co2)
 
         # Publicar dades al broker
-        #client.publish("sensores/temperatura", tf)
-        #client.publish("sensores/humedad", hf)
+        #client.publish("sensores/temperatura", temperatura)
+        #client.publish("sensores/humedad", humedad)
         #client.publish("sensores/co2", co2)
 
         # Guardar dades a MySQL
@@ -110,4 +115,6 @@ while True:
         if not client.is_connected():
             servicios_sql.guardar_datos_database(temperatura, humedad, co2, "database_backup")
 
-        time.sleep(5)
+        servicios_azure.guardar_datos_azure(temperatura, humedad, co2)
+
+        time.sleep(50)
