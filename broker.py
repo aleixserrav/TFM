@@ -2,6 +2,17 @@ import time
 import paho.mqtt.client as mqtt
 import servicios_sql
 
+# PARA UTILIZAR MQTT EN PYTHON
+# Instalar mosquitto (solo en el broker): sudo apt update && sudo apt upgrade -y; sudo apt install mosquitto mosquitto-clients; sudo systemctl enable mosquitto; sudo systemctl start mosquitto
+# Modificar el archivo mosquitto.conf
+# Instalar la libreria MQTT para python: pip install paho-mqtt
+
+# PARA UTILIZAR TAILSCALE
+# Instalar tailscale en las 2 raspberries: curl -fsSL https://tailscale.com/install.sh | sh
+# Iniciar sesión: sudo tailscale up
+# Verificar que la Raspberry está conectada y obtener la IP: tailscale status; tailscale ip -4
+
+
 # Inicialización de tópicos para suscribirse
 TOPICS = ["sensores/temperatura",
           "sensores/humedad",
