@@ -3,6 +3,7 @@ broker.py --> Es el archivo principal de la Raspberry Pi que hace de broker. Su 
               local utilizando MariaDB
 main.py   --> Es el archivo principal de la Raspberry Pi conectada a los sensores. Su función es leer los datos de temperatura, humedad relativa y co2 de los sensores, almacenarlos en una base de datos local
               utilizando MariaDB, publicar esos datos en los tópicos pertinentes en MQTT (conectándose a la misma VPN que el broker mediante una IP privada) y almacenar los datos en Azure (SQL Database)
+modelo_prediccion.py --> Contiene un modelo de predicción caja gris muy simplificado para predecir las siguientes muestras de los sensores basándose en datos pasados (regresión lineal) y en los errores cometidos en predicciones pasadas.
 servicios_azure.py --> Programa que implementa una función para crear una tabla de datos en azure (llamada 'tabla_datos') que contiene 3 colunas (temperatura, humedad y co2) y para escribir datos de temperatura,
                         humedad y co2 dentro de esa tabla.
 servicios_sql.py   --> Programa que utiliza mariaDB (es lo mismo que MySQL para Raspberry Pi) para crear una base de datos en el dispositivo local (el nombre de la base de datos es el parámetro de la función), otra
