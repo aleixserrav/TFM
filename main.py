@@ -68,14 +68,10 @@ def on_connect(client, userdata, flags, rc):
     else:
         print(f"⚠️ Error de conexión con el broker {rc}")
 
-
-
-
-
 # Inicialización cliente MQTT
 client = mqtt.Client()
-#client.on_connect = on_connect
-#client.connect(BROKER_IP, 1883, 60)
+client.on_connect = on_connect
+client.connect(BROKER_IP, 1883, 60)
 
 # Inicialización I2C
 i2c = busio.I2C(board.SCL, board.SDA)
@@ -89,7 +85,7 @@ servicios_sql.crear_database("database_sensores")
 servicios_sql.crear_database("database_backup")
 
 # Inicialización de las bases de datos en la nube (Azure)
-servicios_azure.crear_tabla_azure()
+#servicios_azure.crear_tabla_azure()
 
 
 while True:
@@ -106,15 +102,15 @@ while True:
         print(co2)
 
         # Publicar dades al broker
-        #client.publish("sensores/temperatura", temperatura)
-        #client.publish("sensores/humedad", humedad)
-        #client.publish("sensores/co2", co2)
+        client.publish("sensores/temperatura", temperatura)
+        client.publish("sensores/humedad", humedad)
+        client.publish("sensores/co2", co2)
 
         # Guardar dades a MySQL
         servicios_sql.guardar_datos_database(temperatura, humedad, co2, "database_sensores")
         if not client.is_connected():
             servicios_sql.guardar_datos_database(temperatura, humedad, co2, "database_backup")
 
-        servicios_azure.guardar_datos_azure(temperatura, humedad, co2)
+        #servicios_azure.guardar_datos_azure(temperatura, humedad, co2)
 
-        time.sleep(50)
+        time.sleep(10)

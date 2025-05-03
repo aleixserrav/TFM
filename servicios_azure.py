@@ -36,7 +36,7 @@ def crear_tabla_azure():
         """)
         conn.commit()
 
-        print("✅ Tabla creada correctamente en Azure SQL Database (o ya existía)")
+        print("✅ Tabla inicializada correctamente en Azure SQL Database")
 
         cursor.close()
         conn.close()
