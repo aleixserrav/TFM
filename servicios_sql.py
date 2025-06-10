@@ -5,10 +5,18 @@ import mysql.connector
 
 
 def crear_database(nombre_db):
+    """
+    PROPÓSITO
+    Esta función crea una base de datos MySQL dentro del usuario 'grafana' si todavía no existe y la tabla 'tabla_datos'.
+    En caso de no haber fallos, imprime un mensaje de verificación. Si hay fallos imprime un mensaje de error.
+
+    PARÁMETROS
+    nombre_db: El nombre de la base de datos (string)
+    """
     try:
         db = mysql.connector.connect(
             host="localhost",
-            user="root",
+            user="grafana",
             password="broker"
         )
         cursor = db.cursor()
@@ -34,10 +42,19 @@ def crear_database(nombre_db):
 
 
 def guardar_datos_database(temperatura, humedad, co2, nombre_db):
+    """
+    PROPÓSITO
+    Esta función almacena los 3 valores ambientales (temperatura, humedad y co2) en la base de datos asignada por el parámetro nombre_db.
+    Si la inserción se realiza con éxito, muestra un mensaje de verificación. En caso contrario muestra un mensaje de error.
+
+    PARÁMETROS
+    temperatura, humedad, co2: Variables tipo float correspondientes a los valores ambientales leídos por los sensores
+    nombre_db: Variable tipo string que indica la base de datos a la que se quieren añadir los datos
+    """
     try:
         db = mysql.connector.connect(
             host="localhost",
-            user="root",
+            user="grafana",
             password="broker",
             database=nombre_db
         )
@@ -52,7 +69,21 @@ def guardar_datos_database(temperatura, humedad, co2, nombre_db):
         print(f"❌ Error al guardar en la base de datos: {err}")
 
 
-def obtener_media(parametro):
+def obtener_promedio_5_ultimos_valores(parametro_ambiental):
+    """
+    PROPÓSITO
+    Leer los últimos 5 registros del parámetro ambiental solicitado y devolver el promedio. Si la lectura se realiza con éxito, la función
+    imprime un mensaje de verificación. En caso contrario muestra un mensaje de error.
+
+    PARÁMETROS
+    parametro_ambiental: Variable tipo string que indica el parámetro ambiental del cual se quiere calcular el promedio. Las opciones son:
+        - 'temperatura'
+        - 'humedad'
+        - 'co2'
+
+    VALOR DEVUELTO
+    Devuelve una variable tipo float que contiene el promedio del parámetro seleccionado, por ejemplo 22.5 para el parámetro 'temperatura'
+    """
     try:
         db = mysql.connector.connect(
             host="localhost",
@@ -63,11 +94,11 @@ def obtener_media(parametro):
 
         cursor = db.cursor()
 
-        if parametro == 'temperatura':
+        if parametro_ambiental == 'temperatura':
             columna = 'temperatura'
-        elif parametro == 'humedad':
+        elif parametro_ambiental == 'humedad':
             columna = 'humedad'
-        elif parametro == 'co2':
+        elif parametro_ambiental == 'co2':
             columna = 'co2'
         else:
             raise ValueError("❌ Parámetro inválido. Debe ser 'temperatura', 'humedad' o 'co2'.")

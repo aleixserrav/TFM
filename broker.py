@@ -1,7 +1,7 @@
 import time
 import paho.mqtt.client as mqtt
-import servicios_sql
-import modelo_prediccion
+import servicios_sql as sql
+import modelo_prediccion as mp
 
 
 # Inicialización de tópicos para suscribirse
@@ -10,26 +10,32 @@ TOPICS = ["sensores/temperatura",
           "sensores/co2",
           "sensores/backup/#"]
 
-# Inicialización de variables
-temperatura = None
-humedad = None
-co2 = None
+# Inicialización la clase SensorData
+class SensorData:
+    def __init__(self):
+        self.temperatura = None
+        self.humedad = None
+        self.co2 = None
+        self.backup_temperatura = None
+        self.backup_humedad = None
+        self.backup_co2 = None
+        self.pred_temperatura = None
+        self.pred_humedad = None
+        self.pred_co2 = None
+        self.counter = 0
 
-backup_temperatura = None
-backup_humedad = None
-backup_co2 = None
-
-pred_temperatura = None
-pred_humedad = None
-pred_co2 = None
-
-counter = 0
+data = SensorData()
 
 # Inicialización de las bases de datos MySQL
-servicios_sql.crear_database("database_global")
+sql.crear_database("database_global")
 
 # Callback al conectar el broker a la red
 def on_connect(client, userdata, flags, rc):
+    """
+    PROPÓSITO
+    Esta función se suscribe a los tópicos de la lista TOPICS e imprime un mensaje de verificación si la conexión con el broker es exitosa.
+    De lo contrario, muestra un mensaje de error.
+    """
     if rc == 0:
         print("✅ Conectado al broker MQTT")
         for topic in TOPICS:
@@ -40,29 +46,38 @@ def on_connect(client, userdata, flags, rc):
 
 # Callback al recibir un mensaje
 def on_message(client, userdata, msg):
+    """
+    PROPÓSITO
+    Esta función recibe los mensajes recibidos en los tópicos de MQTT y los asigna a las variables globales correspondientes.
+    Las variables globales utilizadas se clasifican en 4 grupos:
+        - Variables para almacenar la última lectura de datos ambientales: temperatura, humedad, co2
+        - Variables para almacenar los datos recuperados en el tópico sensores/backup/#: backup_temperatura, backup_humedad, backup_co2
+        - Variables para actualizar el modelo de predicción con la nueva lectura: pred_temperatura, pred_humedad, pred_co2
+        - Variable para restablecer el contador de recepción de tópicos: counter 
+    """
     valor = msg.payload.decode()
-    global counter, temperatura, humedad, co2, backup_temperatura, backup_humedad, backup_co2, pred_temperatura, pred_humedad, pred_co2
-    counter = 0
+    data.counter = 0
+    # Almacenar valores de la última lectura de datos ambientales
     if msg.topic == "sensores/temperatura":
-        temperatura = valor
-        modelo_prediccion.actualizar_modelo_con_valor_real(pred_temperatura, valor)
+        data.temperatura = valor
+        mp.actualizar_modelo_con_valor_real(data.pred_temperatura, valor)
     elif msg.topic == "sensores/humedad":
-        humedad = valor
-        modelo_prediccion.actualizar_modelo_con_valor_real(pred_humedad, valor)
+        data.humedad = valor
+        mp.actualizar_modelo_con_valor_real(data.pred_humedad, valor)
     elif msg.topic == "sensores/co2":
-        co2 = valor
-        modelo_prediccion.actualizar_modelo_con_valor_real(pred_co2, valor)
+        data.co2 = valor
+        mp.actualizar_modelo_con_valor_real(data.pred_co2, valor)
+    # Almacenar valores recuperados
     elif msg.topic == 'sensores/backup/temperatura':
-        backup_temperatura = valor
+        data.backup_temperatura = valor
     elif msg.topic == 'sensores/backup/humedad':
-        backup_humedad = valor
+        data.backup_humedad = valor
     elif msg.topic == 'sensores/backup/co2':
-        backup_co2 = valor
+        data.backup_co2 = valor
 
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
-
 client.connect("localhost", 1883, 60)
 client.loop_start()
 
@@ -73,19 +88,19 @@ while True:
     print(f"CO2: {co2}")
 
     # Almacenamos los valores recibidos en la base de datos database_global
-    servicios_sql.guardar_datos_database(temperatura, humedad, co2, "database_global")
+    sql.guardar_datos_database(temperatura, humedad, co2, "database_global")
 
     # Predecir comportamiento
-    dataframe_temperatura = modelo_prediccion.obtener_datos("temperatura")
-    dataframe_humedad = modelo_prediccion.obtener_datos("humedad")
-    dataframe_co2 = modelo_prediccion.obtener_datos("co2")
+    dataframe_temperatura = mp.obtener_datos("temperatura")
+    dataframe_humedad = mp.obtener_datos("humedad")
+    dataframe_co2 = mp.obtener_datos("co2")
 
     if dataframe_temperatura is not None and not dataframe_temperatura.empty:
-        pred_temperatura = modelo_prediccion.entrenar_y_predecir(dataframe_temperatura, "temperatura")
+        data.pred_temperatura = mp.entrenar_y_predecir(dataframe_temperatura, "temperatura")
     if dataframe_humedad is not None and not dataframe_humedad.empty:
-        pred_humedad = modelo_prediccion.entrenar_y_predecir(dataframe_humedad, "humedad")
+        data.pred_humedad = mp.entrenar_y_predecir(dataframe_humedad, "humedad")
     if dataframe_co2 is not None and not dataframe_co2.empty:
-        pred_co2 = modelo_prediccion.entrenar_y_predecir(dataframe_co2, "co2")
+        data.pred_co2 = mp.entrenar_y_predecir(dataframe_co2, "co2")
 
     # Detectar pérdida de la comunicación con los sensores y restablecer variables
     counter = counter + 1
@@ -94,5 +109,5 @@ while True:
         humedad = None
         co2 = None
     
-    time.sleep(10)
+    time.sleep(30)
 
