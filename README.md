@@ -1,4 +1,4 @@
-# Projecte TFM - Sistema IoT de Monitorització i Emmagatzematge de Dades Ambientals
+# Proyecto TFM - Sistema IoT de Monitorización y Almacenamiento de Datos Ambientales
 ## DESCRIPCIÓN DE LOS PROGRAMAS
 ### broker.py
 Es el archivo principal de la Raspberry Pi que hace de broker. Su función es suscribirse a los tópicos que envia la Raspberry de los sensores, leer esos datos y almacenarlos en una base de datos local utilizando MariaDB
