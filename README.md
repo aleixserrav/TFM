@@ -1,39 +1,6 @@
 # Proyecto TFM - Sistema IoT de Medición y Almacenamiento de Datos Ambientales en Aulas Educativas
 ## DESCRIPCIÓN DE LOS PROGRAMAS
 
-## ADC
-### API publica
-
-```cpp
-bool ADC_init();
-float ADC_read(uint8_t channel);
-```
-
-### Descripcion de funciones
-| Funcion | Descripcion | Retorno |
-|---|---|---|
-| `ADC_init()` | Inicializa el `ADS1115` en `0x48` y configura la ganancia `GAIN_ONE`. | `true` si el ADC responde; `false` si no se detecta el dispositivo. |
-| `ADC_read(channel)` | Lee un canal en modo `single-ended` y devuelve el valor en voltios. | Tension leida como `float`. |
-
-### API publica
-
-```cpp
-bool motorsInit(MicrostepMode mode);
-bool motorMoveSteps(uint8_t motorId, long steps, float acceleration = 100U, float maxSpeed = 10000U);
-bool motorMoveTo(uint8_t motorId, long position, float acceleration = 100U, float maxSpeed = 10000U);
-bool motorStartSpeed(uint8_t motorId, float speed);
-bool motorStop(uint8_t motorId);
-bool motorsStopAll();
-bool motorIsRunning(uint8_t id);
-bool motorsAnyRunning();
-```
-
-### Descripcion de las funciones
-| Funcion | Descripcion | Retorno |
-|---|---|---|
-| `motorsInit` | Configura microstepping, inicializa los recursos necesarios y crea una tarea FreeRTOS para el control de los motores. | `true` si se ha inicializado correctamente, `false`si ha fallado la inicializacion. |
-| `motorMoveSteps`| Mueve el motor un numero de pasos determinado a la aceleracion y velocidad maxima indicadas. | `true` si el comando se acepta y se encola, `false` si el motor esta ocupado, los parametros son invalidos o falla la cola. |
-
 ### broker.py
 Es el archivo principal de la Raspberry Pi que hace de broker. Su función es suscribirse a los tópicos que envia la Raspberry de los sensores, leer esos datos y almacenarlos en una base de datos local utilizando MariaDB
 
