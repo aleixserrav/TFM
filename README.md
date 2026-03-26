@@ -3,6 +3,13 @@
 
 ### Descripcion de funciones
 
+### API publica
+
+```cpp
+bool ADC_init();
+float ADC_read(uint8_t channel);
+```
+
 | Funcion | Descripcion | Retorno |
 |---|---|---|
 | `ADC_init()` | Inicializa el `ADS1115` en `0x48` y configura la ganancia `GAIN_ONE`. | `true` si el ADC responde; `false` si no se detecta el dispositivo. |
