@@ -29,7 +29,7 @@ bool motorsAnyRunning();
 ```
 
 ### Descripcion de las funciones
-
+| Funcion | Descripcion | Retorno |
 |---|---|---|
 | `motorsInit` | Configura microstepping, inicializa los recursos necesarios y crea una tarea FreeRTOS para el control de los motores. | `true` si se ha inicializado correctamente, `false`si ha fallado la inicializacion. |
 | `motorMoveSteps`| Mueve el motor un numero de pasos determinado a la aceleracion y velocidad maxima indicadas. | `true` si el comando se acepta y se encola, `false` si el motor esta ocupado, los parametros son invalidos o falla la cola. |
