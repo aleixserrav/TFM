@@ -1,5 +1,13 @@
 # Proyecto TFM - Sistema IoT de Medición y Almacenamiento de Datos Ambientales en Aulas Educativas
 ## DESCRIPCIÓN DE LOS PROGRAMAS
+
+### Descripcion de funciones
+
+| Funcion | Descripcion | Retorno |
+|---|---|---|
+| `ADC_init()` | Inicializa el `ADS1115` en `0x48` y configura la ganancia `GAIN_ONE`. | `true` si el ADC responde; `false` si no se detecta el dispositivo. |
+| `ADC_read(channel)` | Lee un canal en modo `single-ended` y devuelve el valor en voltios. | Tension leida como `float`. |
+
 ### broker.py
 Es el archivo principal de la Raspberry Pi que hace de broker. Su función es suscribirse a los tópicos que envia la Raspberry de los sensores, leer esos datos y almacenarlos en una base de datos local utilizando MariaDB
 
